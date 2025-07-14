@@ -10,11 +10,15 @@ const extractCurlDetails = (curlCommand) => {
     body: {}
   };
 
-  // Extract method (e.g., -X POST or --request POST)
+  // Detect HTTP method
+  let method = 'GET';
   const methodMatch = curlCommand.match(/--request\s+(\w+)/i) || curlCommand.match(/-X\s+(\w+)/i);
   if (methodMatch) {
-    result.method = methodMatch[1].toUpperCase();
+    method = methodMatch[1].toUpperCase();
+  } else if (/--data|-d|--data-raw/.test(curlCommand)) {
+    method = 'POST'; // default to POST if body is present
   }
+  result.method = method;
 
   // Extract URL
   const urlMatch = curlCommand.match(/curl\s(?:.*?\s)?['"]?(https?:\/\/[^\s'"]+)['"]?/i);
@@ -68,5 +72,4 @@ router.post('/', (req, res) => {
   }
 });
 
-// ✅ Correct export
 module.exports = router;
