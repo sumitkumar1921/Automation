@@ -1,0 +1,137 @@
+.automation-wrapper {
+  padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.automation-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.curl-input,
+.response-box {
+  width: 40%;
+  height: 300px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: none;
+  background-color: #f9f9f9;
+}
+
+.run-button {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 130px;
+}
+
+.run-button:hover {
+  background-color: #0056b3;
+}
+
+/* Section 2 styling */
+.section-two {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 30px;
+}
+
+.checkbox-columns {
+  display: grid;
+  grid-template-columns: repeat(2, 250px);
+  gap: 10px 40px;
+  font-size: 16px;
+}
+
+.checkbox-columns label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.automate-button-wrapper {
+  padding-left: 40px;
+}
+
+.automate-button {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 16px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.automate-button:hover {
+  background-color: #1e7e34;
+}
+
+/* Section 3 */
+.section-three {
+  margin-top: 30px;
+  display: flex;
+  gap: 20px;
+}
+
+.two-column-output > .left-output,
+.two-column-output > .right-output {
+  width: 50%;
+}
+
+.automation-output {
+  white-space: pre-wrap;
+  background-color: #f7f7f7;
+  border: 1px solid #ccc;
+  padding: 15px;
+  font-family: monospace;
+  font-size: 14px;
+  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Section 4: New output boxes */
+.section-four {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.section-four .output-box {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  color: #333;
+  font-size: 14px;
+}
+
+.section-four .output-box h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #007bff;
+  font-size: 16px;
+}

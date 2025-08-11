@@ -56,6 +56,7 @@ router.post('/', async (req, res) => {
     let prompt = `You are a senior QA automation engineer. Generate a Java TestNG class using RestAssured.\n`;
     prompt += `Use testData.json for all expected values.\n`;
     prompt += `Use assertions like:\n`;
+    prompt += `In negative test cases responce code is also 200 \n`;
     prompt += `Assert.assertEquals(response.jsonPath().get(\"chatId\").toString(), expectedJson.get(\"chatId\").getAsString(), \"chatId mismatch\");\n`;
     prompt += `Avoid using for-loops to assert fields. Write individual assertions only.\n`;
     prompt += `Use file: testData.json loaded via Gson.\n`;

@@ -1,6 +1,7 @@
 import { Routes, Route, useNavigate } from 'react-router-dom'
 import JavaToCypress from './pages/JavaToCypress.jsx'
 import ApiAutomation from './pages/ApiAutomation.jsx'
+import AiAutomation from './pages/AiAutomation.jsx'
 
 function App() {
   const navigate = useNavigate()
@@ -20,11 +21,18 @@ function App() {
         >
           Java Selenium to Cypress
         </button>
+        <button
+          onClick={() => navigate('/ai-automation')}
+          style={{ padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '5px' }}
+        >
+          Ai Automation
+        </button>
       </div>
 
       <Routes>
         <Route path="/java-to-cypress" element={<JavaToCypress />} />
         <Route path="/api-automation" element={<ApiAutomation />} />
+        <Route path="/ai-automation" element={<AiAutomation />} />
       </Routes>
     </div>
   )
