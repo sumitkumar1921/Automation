@@ -26,7 +26,7 @@ function AiAutomation() {
   const handleRunApi = async () => {
     setLoadingRun(true);
     try {
-      const res = await fetch('http://localhost:8000/api/ai-automation', {
+      const res = await fetch('http://localhost:8000/api/api-responce', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ApiCurl: curl }),
@@ -43,7 +43,7 @@ function AiAutomation() {
   const handleGetAutomationData = async () => {
     setLoadingGetData(true);
     try {
-      const res = await fetch('http://localhost:8000/api/get-test-data', {
+      const res = await fetch('http://localhost:8000/api/generate-test-cases', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -112,7 +112,7 @@ function AiAutomation() {
         testCaseText = blocks.join('\n\n');
       }
 
-      const res = await fetch('http://localhost:8000/api/run-tests', {
+      const res = await fetch('http://localhost:8000/api/update-responce', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

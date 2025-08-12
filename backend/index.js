@@ -9,24 +9,18 @@ app.use(cors());
 app.use(express.json());
 
 // Load route files
-const getApiDetailsRoute = require('./routes/getApiDetails');
-const java2CypressRoute = require('./routes/java2Cypress');
-const apiAutomation= require('./routes/apiAutomation');
-const aiAutomation= require('./routes/aiAutomation.js');
-const getTestdata= require('./routes/getTestData.js');
-const runTests = require('./routes/runTests.js');
-const automateApi = require('./routes/automateApi.js');
+const apiResponce= require('./routes/apiResponce.js'); // this api hit on run button and give api resonce
+const generateTestCases= require('./routes/generateTestCases.js'); // this api generate test cases from AI
+const updateResponce = require('./routes/updateResponce.js'); // this api update json file with responce from server (expected responce from server)
+const automateApi = require('./routes/automateApi.js'); // this api write test cases in java using AI
 
 
 
 // Use them under base paths
-app.use('/api/get-api-details', getApiDetailsRoute);
-app.use('/api/java-to-cypress', java2CypressRoute);
-app.use('/api/api-automation', apiAutomation);
-app.use('/api/ai-automation', aiAutomation);
-app.use('/api/get-test-data', getTestdata);
-app.use('/api/run-tests', runTests);
-app.use('/api/automate-api', automateApi);
+app.use('/api/api-responce', apiResponce); //this api hit on run button and give api resonce
+app.use('/api/generate-test-cases', generateTestCases); // this api generate test cases from AI
+app.use('/api/update-responce', updateResponce);// this api update json file with responce from server (expected responce from server)
+app.use('/api/automate-api', automateApi); // this api write test cases in java using AI
 
 app.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);
