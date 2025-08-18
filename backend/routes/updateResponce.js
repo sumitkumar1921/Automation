@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const { default: stripJsonComments } = require('strip-json-comments');
-const parseCurl = require('../utils/parseCurl');
+const parseCurl = require('../utils/parseCurls');
 
 router.post('/', async (req, res) => {
   try {

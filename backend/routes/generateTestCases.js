@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Clean overly escaped cURL
+    // Clean overly escaped cURL  
     curl = curl.replace(/\\"/g, '"');
 
     const caseDescriptions = [];
@@ -39,14 +39,10 @@ Each test case must strictly follow this format:
 // inline comment
 {
   "headers": {
-    "privatekey": "...",
-    "Content-Type": "application/json"
+    
   },
   "body": {
-    "userId": "...",
-    "groupName": "...",
-    "publicKey": "...",
-    "reportFormat": 1
+    
   }
 }
 
