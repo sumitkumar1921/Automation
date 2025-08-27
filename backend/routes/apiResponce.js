@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
   const { ApiCurl } = req.body;
 
   if (!ApiCurl || typeof ApiCurl !== 'string') {
-    return res.status(400).json({ success: false, message: 'ApiCurl must be a string' });
+    return res.status(200).json({ success: false, message: 'ApiCurl must be a string' });
   }
 
   try {

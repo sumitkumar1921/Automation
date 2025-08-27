@@ -8,7 +8,10 @@ router.post('/', async (req, res) => {
     const { curl, testCases } = req.body;
 
     if (!curl || !testCases) {
-      return res.status(400).json({ success: false, message: 'Missing curl or testCases' });
+      return res.status(200).json(
+        { success: false,
+           message: `Missing curl or testCases  ${process.env.AI_API_URL}`
+         });
     }
 
     // Clean test case JSON string (remove comments, trim)
@@ -34,7 +37,7 @@ router.post('/', async (req, res) => {
 
     // Call OpenRouter API
     const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
+      `${process.env.AI_API_URL}`,
       {
         model: 'mistralai/devstral-small',
         messages: [

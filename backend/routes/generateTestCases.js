@@ -7,7 +7,10 @@ router.post('/', async (req, res) => {
   let { curl, selectedCases, instruction } = req.body;
 
   if (!curl || !instruction || !selectedCases) {
-    return res.status(400).json({ error: 'Missing curl, instruction, or selectedCases in request body' });
+    return res.status(200).json({ 
+      success: false,
+      ErrorMessage: 'Missing curl, instruction, or selectedCases in request body ' 
+    });
   }
 
   try {
@@ -35,16 +38,27 @@ Do NOT add any other test cases beyond the types mentioned.
 Requested test case types:
 ${caseDescriptions.join('\n')}
 
-Each test case must strictly follow this format:
+Each test case must strictly follow this format:  (for post api)
 // inline comment
 {
   "headers": {
     
   },
   "body": {
-    
+    // for post api request body here 
   }
 }
+Each test case must strictly follow this format:  (for get api api)
+// inline comment
+{
+  "headers": {
+    
+  },
+  "params": {
+    // all parameter here 
+  }
+}
+
 
 Strict Rules:
 - Use ONLY JS-style inline comments (e.g., // valid case)
@@ -59,7 +73,8 @@ ${curl}
 `.trim();
 
     const openRouterRes = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
+      `${process.env.AI_API_URL}`,
+      
       {
         model: 'mistralai/devstral-small',
         max_tokens: 2500,

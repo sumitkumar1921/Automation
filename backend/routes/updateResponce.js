@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 const { default: stripJsonComments } = require('strip-json-comments');
 const parseCurl = require('../utils/parseCurls');
+const qs = require('querystring');
 
 router.post('/', async (req, res) => {
   try {
@@ -13,7 +14,12 @@ router.post('/', async (req, res) => {
 
     const parsedCurl = parseCurl(curl);
     let url = parsedCurl.url;
-    const method = parsedCurl.method || 'POST';
+    let method = parsedCurl.method || 'POST';
+
+    // 🔥 Force GET for login endpoint
+    if (url.includes('/user/login')) {
+      method = 'GET';
+    }
 
     if (url.endsWith('"') || url.endsWith('%22')) {
       url = url.replace(/["%22]+$/, '');
@@ -32,25 +38,35 @@ router.post('/', async (req, res) => {
 
       const jsonPart = stripJsonComments(jsonLines).trim();
 
-      // ✅ Skip non-JSON blocks safely
-      if (!jsonPart || !jsonPart.startsWith('{')) {
+      if (!jsonPart || !/^[\[{]/.test(jsonPart)) {
         console.log('⏭️ Skipping non-JSON block:', jsonPart);
         continue;
       }
 
       try {
-        console.log('🧪 Parsing block:', jsonPart);
         const test = JSON.parse(jsonPart);
-        const headers = test.headers || parsedCurl.headers || {};
-        const body = test.body || test;
+
+        const headers = { ...parsedCurl.headers, ...(test.headers || {}) };
+        const params = test.params || {};
+        const body = test.body || {};
 
         const axiosConfig = {
           method,
           url,
           headers,
-          data: body,
           validateStatus: () => true
         };
+
+        if (method === 'GET') {
+          if (Object.keys(params).length > 0) {
+            const query = qs.stringify(params);
+            axiosConfig.url = url.includes('?') ? `${url}&${query}` : `${url}?${query}`;
+          }
+        } else {
+          if (Object.keys(body).length > 0) {
+            axiosConfig.data = body;
+          }
+        }
 
         const response = await axios(axiosConfig);
 
@@ -69,15 +85,12 @@ router.post('/', async (req, res) => {
 
         results.push(result);
       } catch (err) {
-        console.error('❌ Failed to parse JSON:', jsonPart);
         results.push({
           comment: commentLine,
           body: jsonPart,
           response: {
             status: 'ERROR',
-            error: {
-              message: err.message
-            }
+            error: { message: err.message }
           },
           error: true
         });
@@ -86,7 +99,6 @@ router.post('/', async (req, res) => {
 
     res.json({ success: true, testResults: results });
   } catch (err) {
-    console.error('🔥 Server Error:', err);
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
 });

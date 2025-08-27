@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './AiAutomation.css';
 
+
 function AiAutomation() {
   const [curl, setCurl] = useState('');
   const [response, setResponse] = useState('');
