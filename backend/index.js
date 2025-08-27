@@ -23,5 +23,5 @@ app.use('/api/update-responce', updateResponce);// this api update json file wit
 app.use('/api/automate-api', automateApi); // this api write test cases in java using AI
 
 app.listen(port, () => {
-  console.log(`✅ Server running at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

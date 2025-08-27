@@ -21,23 +21,23 @@ const parseCurl = (curl) => {
     }
   });
 
-  // ✅ Unescape escaped quotes
+  // Unescape escaped quotes
   let unescapedData = dataRaw.replace(/\\"/g, '"');
 
-  // ✅ Trim anything after the final closing brace `}`
+  // Trim anything after the final closing brace `}`
   const closingIndex = unescapedData.lastIndexOf('}');
   if (closingIndex !== -1) {
     if (closingIndex < unescapedData.length - 1) {
-      console.warn('⚠️ Extra characters after valid JSON body were trimmed.');
+      console.warn('Extra characters after valid JSON body were trimmed.');
     }
     unescapedData = unescapedData.slice(0, closingIndex + 1);
   }
 
-  // ✅ Try parsing JSON safely
+  //  Try parsing JSON safely
   try {
     body = unescapedData ? JSON.parse(unescapedData) : {};
   } catch (err) {
-    console.error('❌ Failed to parse JSON body from cURL:', unescapedData);
+    console.error('Failed to parse JSON body from cURL:', unescapedData);
     throw new Error(`Invalid JSON in --data: ${err.message}`);
   }
 

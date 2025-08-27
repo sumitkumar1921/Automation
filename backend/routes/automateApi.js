@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ Error in /automate-api:', error.message);
+    console.error('Error in /automate-api:', error.message);
     return res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });

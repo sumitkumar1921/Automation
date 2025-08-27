@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
     let url = parsedCurl.url;
     let method = parsedCurl.method || 'POST';
 
-    // 🔥 Force GET for login endpoint
+    // Force GET for login endpoint
     if (url.includes('/user/login')) {
       method = 'GET';
     }
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
       const jsonPart = stripJsonComments(jsonLines).trim();
 
       if (!jsonPart || !/^[\[{]/.test(jsonPart)) {
-        console.log('⏭️ Skipping non-JSON block:', jsonPart);
+        console.log('Skipping non-JSON block:', jsonPart);
         continue;
       }
 

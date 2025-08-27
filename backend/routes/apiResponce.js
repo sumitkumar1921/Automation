@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
       timeout: 10000,
     });
 
-    // ✅ Return only the actual API response body
+    //  Return only the actual API response body
     res.json({
         status: response.status,
         data: response.data,

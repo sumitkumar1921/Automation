@@ -93,7 +93,7 @@ ${curl}
     let jsonPart = aiReply.replace(/^```(js|json)?\s*/i, '').replace(/```$/, '').trim();
 
     if (jsonPart.includes('.repeat(') || jsonPart.includes('new Date(')) {
-      console.warn('⚠️ Invalid JS code detected in AI response');
+      console.warn('Invalid JS code detected in AI response');
       return res.status(400).json({
         success: false,
         error: 'AI response includes invalid JavaScript-like syntax.',
@@ -106,7 +106,7 @@ ${curl}
       testData: jsonPart,
     });
   } catch (err) {
-    console.error('❌ Error in /api/get-test-data:', err?.response?.data || err);
+    console.error('Error in /api/get-test-data:', err?.response?.data || err);
     return res.status(500).json({
       success: false,
       error: 'AI generation failed',
