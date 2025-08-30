@@ -15,6 +15,7 @@ function AiAutomation() {
   const [loadingGetData, setLoadingGetData] = useState(false);
   const [loadingRunTests, setLoadingRunTests] = useState(false);
   const [loadingAutomate, setLoadingAutomate] = useState(false);
+  const [loadingJson, setLoadingJson] = useState(false);
   const [selectedCases, setSelectedCases] = useState({
     valid: false,
     invalidParameter: false,
@@ -140,6 +141,38 @@ function AiAutomation() {
       setLoadingRunTests(false);
     }
   };
+  const handleformatjson = async () => {
+    setLoadingJson(true);
+  try {
+    const response = await fetch("http://localhost:8000/api/format-json", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        rawjson: jsonFile, // sending json from state
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch formatted JSON");
+    }
+
+    const data = await response.json();
+    console.log("Formatted JSON:", data);
+
+    // ✅ Update same state with formatted JSON
+    if (data.formattedJson) {
+      setJsonFile(data.formattedJson);
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+  }
+  finally {
+      setLoadingJson(false);
+    }
+};
 
   const handleAutomateApi = async () => {
     setLoadingAutomate(true);
@@ -227,6 +260,9 @@ function AiAutomation() {
           </button>
           <button className="automate-button" onClick={handleRunApiTests} disabled={loadingRunTests}>
             {loadingRunTests ? 'Running Tests...' : 'Run API Tests'}
+          </button>
+          <button className="automate-button" onClick={handleformatjson} disabled={loadingJson}>
+            {loadingJson ? 'Formating Json...' : 'Format Json'}
           </button>
           <button className="automate-button" onClick={handleAutomateApi} disabled={loadingAutomate}>
             {loadingAutomate ? 'Creating Code...' : 'Automate API'}

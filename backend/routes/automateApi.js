@@ -8,10 +8,10 @@ router.post('/', async (req, res) => {
     const { curl, testCases } = req.body;
 
     if (!curl || !testCases) {
-      return res.status(200).json(
-        { success: false,
-           message: `Missing curl or testCases  ${process.env.AI_API_URL}`
-         });
+      return res.status(200).json({
+        success: false,
+        message: `Missing curl or testCases ${process.env.AI_API_URL}`
+      });
     }
 
     // Clean test case JSON string (remove comments, trim)
@@ -20,20 +20,81 @@ router.post('/', async (req, res) => {
       .filter(line => line.trim() !== '')
       .map(line => line.trim());
 
-    // Construct prompt for AI including request for schemas
-    let prompt = `You are a senior QA automation engineer.\n`;
-    prompt += `Generate two Java classes: FetchReportDP (DataProvider) and FetchReportTest (TestNG tests) using RestAssured.\n\n`;
-    prompt += `For every field in the test data JSON below, write an individual assertion line in the test class.\n`;
-    prompt += `Use this assertion format:\n`;
-    prompt += `Assert.assertEquals(response.jsonPath().get("<fieldPath>").toString(), expectedJson.get("<fieldPath>").getAsString(), "<fieldPath> mismatch");\n`;
-    prompt += `Replace <fieldPath> with the exact JSON path or key.\n\n`;
-    prompt += `Do NOT use loops, placeholders, or comments like "Add more assertions". Write every assertion explicitly.\n\n`;
-    prompt += `Use the test data file named 'testData.json' loaded via Gson in the DataProvider.\n\n`;
-    prompt += `Also, write the JSON Schema (Draft-07) for the VALID response (success case).\n`;
-    prompt += `Also, write the JSON Schema (Draft-07) for the INVALID response (error case).\n\n`;
-    prompt += `Also, validate schema in assertion in both valid and invalid case.\n\n`;
-    prompt += `Here is the cURL command:\n${curl}\n\n`;
-    prompt += `Here is the full test data JSON:\n${cleaned.join('\n')}\n`;
+    // Construct prompt for AI
+    let prompt = `
+You are a senior QA automation engineer.
+
+Your task:
+1. Generate a Java DataProvider class named **FetchReportDP** that loads test data from \`testData.json\` using Gson.
+2. Generate a Java TestNG test class named **FetchReportTest** that calls the API using RestAssured.
+
+Testclass
+write test class seprate for each case from json
+write before class where you take hit api before each @Test with each cases
+ @Before class format
+ String url= "";
+
+        Response response = RestAssured.given()
+                .baseUri(url)
+                .header("")
+                .body()  //if post api 
+                .post()/get(); //depands on api metthod
+
+@test class format for each @test class (valid and invalid)
+
+@Test(dataProvider = "validJsonObjects",dataProviderClass = .class)
+void validTestCases(JsonObject jsonObject)
+Response response = DemoAppControllerAPI.fetchReport(jsonObject);
+Assert.assertEquals(response.getStatusCode(),200);
+Assert.assertEquals(response.jsonPath().get("status").toString(),"SUCCESS");
+validate All values from responce
+//Schema Validation
+SchemaValidation.validateSchema(response,"DataMessageStatus.json");
+}
+
+write test data provider seprate for test each test case in Test class
+data provider class format for each test class
+@DataProvider(name = "validJsonObjects")
+public Object[][] validtestCases() {
+JsonArray jsonArray = new JsonParser().parse(new InputStreamReader(
+this.getClass().getClassLoader().getResourceAsStream("testData.json")))
+.getAsJsonObject().get("ValidCase").getAsJsonArray();
+//Set Each Json to return Object
+Object[][] returnValue = new Object[jsonArray.getAsJsonArray().size()][1];
+int index = 0;
+for (JsonElement each : jsonArray.getAsJsonArray()) {
+returnValue[index++][0] = each;
+}
+//Return 1 Json Object At a Time
+return returnValue;
+}
+
+
+Rules for the test class:
+- Use the provided cURL request exactly as the request definition.
+- For each field in the given test data JSON, generate **explicit assertion lines**.
+- Assertion format must be:
+  
+- Replace <fieldPath> with the exact JSON key or path.
+- Do NOT use loops, placeholders, or generic comments.
+- Include schema validation for both valid and invalid responses.
+
+Schemas:
+- Generate **one JSON Schema (Draft-07)** for the VALID response.
+- Generate **one JSON Schema (Draft-07)** for the INVALID response.
+
+Output format requirement (strict):
+- First code block: DataProvider class in Java.
+- Second code block: Test class in Java.
+- Third block: VALID response JSON Schema.
+- Fourth block: INVALID response JSON Schema.
+
+Here is the API request (cURL):
+${curl}
+
+Here is the test data JSON:
+${cleaned.join('\n')}
+`;
 
     // Call OpenRouter API
     const response = await axios.post(
@@ -43,7 +104,8 @@ router.post('/', async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful QA engineer that writes clean Java TestNG automation code with full assertions and JSON schemas.'
+            content:
+              'You are a helpful QA engineer that writes clean Java TestNG automation code with full assertions and JSON schemas.'
           },
           {
             role: 'user',
@@ -61,27 +123,21 @@ router.post('/', async (req, res) => {
 
     const aiOutput = response.data.choices[0].message.content;
 
-    // Extract Java code blocks from AI response
-    const codeBlocks = aiOutput.match(/```java\n([\s\S]*?)```/g);
+    // --- Extract blocks ---
+    const javaBlocks = aiOutput.match(/```java\n([\s\S]*?)```/g) || [];
+    const jsonBlocks = aiOutput.match(/```json\n([\s\S]*?)```/g) || [];
 
-    if (!codeBlocks || codeBlocks.length < 2) {
-      return res.status(500).json({ success: false, message: 'AI response did not contain valid Java code blocks.' });
+    if (javaBlocks.length < 2 || jsonBlocks.length < 2) {
+      return res.status(500).json({
+        success: false,
+        message: 'AI response did not contain the expected 4 blocks (2 Java + 2 JSON).'
+      });
     }
 
-    const dataProvider = codeBlocks[0].replace(/```java\n|```/g, '').trim();
-    const testClass = codeBlocks[1].replace(/```java\n|```/g, '').trim();
-
-    // Extract JSON Schema blocks for valid and invalid responses (look for ```json ... ``` blocks)
-    // We expect 2 JSON schema blocks: first for valid, second for invalid
-    const jsonSchemaBlocks = aiOutput.match(/```json\n([\s\S]*?)```/g) || [];
-
-    let validSchema = '';
-    let invalidSchema = '';
-
-    if (jsonSchemaBlocks.length >= 2) {
-      validSchema = jsonSchemaBlocks[0].replace(/```json\n|```/g, '').trim();
-      invalidSchema = jsonSchemaBlocks[1].replace(/```json\n|```/g, '').trim();
-    }
+    const dataProvider = javaBlocks[0].replace(/```java\n|```/g, '').trim();
+    const testClass = javaBlocks[1].replace(/```java\n|```/g, '').trim();
+    const validSchema = jsonBlocks[0].replace(/```json\n|```/g, '').trim();
+    const invalidSchema = jsonBlocks[1].replace(/```json\n|```/g, '').trim();
 
     return res.json({
       success: true,
@@ -93,7 +149,9 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error('Error in /automate-api:', error.message);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal server error' });
   }
 });
 

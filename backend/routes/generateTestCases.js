@@ -77,7 +77,7 @@ ${curl}
       
       {
         model: 'mistralai/devstral-small',
-        max_tokens: 2500,
+        // max_tokens: 2500,
         messages: [{ role: 'user', content: prompt }],
       },
       {
